@@ -10,8 +10,10 @@ def main():
 
     docs = dictionary.build()
 
-    for doc in docs:
-        print(doc)
+    print(dictionary.__str__())
+    print("Nb word in dictionary : {}".format(dictionary.getNbTerms()))
+    # for doc in docs:
+    #     print(doc)
 
 if __name__ == '__main__':
     main()
