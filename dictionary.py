@@ -2,83 +2,6 @@ import re
 from bs4 import BeautifulSoup
 from nltk.stem import PorterStemmer
 
-class Occurence:
-    """"""
-
-    def __init__(self, docID):
-        self.docID = docID
-        self.termFreq = 0
-        self.positions = []
-
-    def __str__(self):
-        str = "[{}, {} : ".format(self.docID, self.termFreq)
-        for pos in self.positions:
-            str += " {},".format(pos)
-        str += "]"
-        return str
-
-    def __eq__(self, other):
-        """To compare 2 Occurence object by their docID attribute"""
-        return isinstance(other, Occurence) and self.docID == other.docID
-
-    def __hash__(self):
-        """Needed for __eq__()"""
-        return hash(self.docID)
-
-    def add(self, position):
-        """"""
-        if(position not in self.positions):
-            self.positions.append(position)
-            self.positions.sort()
-            self.termFreq += 1
-
-    def methodeToConvertToSaveableFormat(self):
-        pass
-
-
-class Term:
-    """"""
-
-    def __init__(self, word):
-        self.word = word
-        self.docFreq = 1
-        self.occurences = []
-
-    def __str__(self):
-        str = "[{}, {}] -> (".format(self.word, self.docFreq)
-        for occ in self.occurences:
-            str += occ.__str__() + ", "
-        str += ")"
-        return str
-
-    def __eq__(self, other):
-        """To compare 2 Occurence object by their docID attribute"""
-        return isinstance(other, Term) and self.word == other.word
-
-    def __hash__(self):
-        """Needed for __eq__()"""
-        return hash(self.word)
-
-    def add(self, docID, position):
-        """"""
-        occurence = self.getOccurence(docID)
-        if(occurence):
-            # print("\treuse past occ")
-            occurence.add(position)
-        else:
-            # print("\tcreate new occ")
-            newOccurence = Occurence(docID)
-            newOccurence.add(position)
-            self.occurences.append(newOccurence)
-
-    def getOccurence(self, docID):
-        """"""
-        for occ in self.occurences:
-            # print("---- {}/{}".format(occ.docID, docID))
-            if(occ.docID == docID):
-                return occ
-        return None
-
 class PositionalInvertedIndex:
     """"""
 
@@ -165,12 +88,52 @@ class PositionalInvertedIndex:
 
         return docs
 
+    def getPostingList(self, word):
+        """"""
+        term = self.getTerm(word)
+        if(term == None):
+            return None
+        return [occ.docID for occ in term.occurences]
 
-    def loadDictionary(self, path2dic):
-        pass
+    def getPostingListDistance(self, word1, word2, distance):
+        """"""
+        term1 = self.getTerm(word1)
+        term2 = self.getTerm(word2)
 
-    def saveDictionary(self, path2dic):
-        pass
+        t1_posting = [occ for occ in term1.occurences]
+        t2_posting = [occ for occ in term2.occurences]
+
+        if(term1 == None or term2 == None):
+            return None
+
+        result = []
+        idx_t1, idx_t2 = 0, 0
+        while(idx_t1 < len(t1_posting) and idx_t2 < len(t2_posting)):
+            if(t1_posting[idx_t1].docID == t2_posting[idx_t2].docID):
+                idx_pt1, idx_pt2 = 0, 0
+                t1_pos = t1_posting[idx_t1].positions
+                t2_pos = t2_posting[idx_t2].positions
+                while(idx_pt1 < len(t1_pos) and idx_t2 < len(t2_pos)):
+                    if(abs(t1_pos[idx_pt1] - t2_pos[idx_pt2])-1 <= distance):
+                        if(t1_posting[idx_t1].docID not in result):
+                            result.append(t1_posting[idx_t1].docID)
+                        idx_pt1 += 1
+                        idx_pt2 += 1
+                    else:
+                        if(t1_pos[idx_pt1] < t2_pos[idx_pt2]):
+                            idx_pt1 += 1
+                        else:
+                            idx_pt2 += 1
+                idx_t1 += 1
+                idx_t2 += 1
+            else:
+                if(t1_posting[idx_t1].docID < t2_posting[idx_t2].docID):
+                    idx_t1 += 1
+                else:
+                    idx_t2 += 1
+
+        return result
+
 
     def getTerm(self, word):
         for term in self.terms:
@@ -180,8 +143,92 @@ class PositionalInvertedIndex:
         # print("not in term")
         return None
 
+    def loadDictionary(self, path2dic):
+        pass
+
+    def saveDictionary(self, path2dic):
+        pass
+
     def getNbTerms(this):
         return len(this.terms)
 
     def setStopWords(self, stopWords):
         self.stopWords = stopWords
+
+
+class Occurence:
+    """"""
+
+    def __init__(self, docID):
+        self.docID = docID
+        self.termFreq = 0
+        self.positions = []
+
+    def __str__(self):
+        str = "[{}, {} : ".format(self.docID, self.termFreq)
+        for pos in self.positions:
+            str += " {},".format(pos)
+        str += "]"
+        return str
+
+    def __eq__(self, other):
+        """To compare 2 Occurence object by their docID attribute"""
+        return isinstance(other, Occurence) and self.docID == other.docID
+
+    def __hash__(self):
+        """Needed for __eq__()"""
+        return hash(self.docID)
+
+    def add(self, position):
+        """"""
+        if(position not in self.positions):
+            self.positions.append(position)
+            self.positions.sort()
+            self.termFreq += 1
+
+    def methodeToConvertToSaveableFormat(self):
+        pass
+
+
+class Term:
+    """"""
+
+    def __init__(self, word):
+        self.word = word
+        self.docFreq = 1
+        self.occurences = []
+
+    def __str__(self):
+        str = "[{}, {}] -> (".format(self.word, self.docFreq)
+        for occ in self.occurences:
+            str += occ.__str__() + ", "
+        str += ")"
+        return str
+
+    def __eq__(self, other):
+        """To compare 2 Occurence object by their docID attribute"""
+        return isinstance(other, Term) and self.word == other.word
+
+    def __hash__(self):
+        """Needed for __eq__()"""
+        return hash(self.word)
+
+    def add(self, docID, position):
+        """"""
+        occurence = self.getOccurence(docID)
+        if(occurence):
+            # print("\treuse past occ")
+            occurence.add(position)
+        else:
+            # print("\tcreate new occ")
+            newOccurence = Occurence(docID)
+            newOccurence.add(position)
+            self.occurences.append(newOccurence)
+
+    def getOccurence(self, docID):
+        """"""
+        for occ in self.occurences:
+            # print("---- {}/{}".format(occ.docID, docID))
+            if(occ.docID == docID):
+                return occ
+        return None

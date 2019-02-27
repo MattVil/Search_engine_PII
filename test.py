@@ -15,7 +15,7 @@ def main():
     print("Nb word in dictionary : {}".format(dictionary.getNbTerms()))
 
     queryManager = QueryManager(dictionary)
-    print(queryManager.process("1(fat thing) show 7(berkeley SFSU)"))
+    print(queryManager.process("0(touch screen) fix repair"))
 
 if __name__ == '__main__':
     main()

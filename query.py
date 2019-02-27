@@ -1,4 +1,5 @@
 import re
+from nltk.stem import PorterStemmer
 
 class QueryManager:
 
@@ -8,9 +9,47 @@ class QueryManager:
     def process(self, query):
         """"""
         splited_query = self.__split_query(query)
+        splited_query = self.__normalize_query(splited_query)
+        splited_query = self.__stem_query(splited_query)
+
+        posting_lists = []
+        for part in splited_query:
+            if(len(part) > 1):
+                posting_lists.append(self.dictionary.getPostingListDistance(part[1], part[2], int(part[0])))
+                print("\t{}({} {}) - \t Posting list: {}".format(
+                        part[0],
+                        part[1],
+                        part[2],
+                        self.dictionary.getPostingListDistance(part[1], part[2], int(part[0]))))
+            else:
+                posting_lists.append(self.dictionary.getPostingList(part[0]))
+                print("\t{} - \t\t Posting list: {}".format(part[0], self.dictionary.getPostingList(part[0])))
 
 
         return splited_query
+
+    def __stem_query(self, query_array):
+        """Do a morphologic tranformation on a query array"""
+        pstemmer = PorterStemmer()
+        stemmed_query = []
+        for part in query_array:
+            tmp_part = []
+            for word in part:
+                tmp_part.append(pstemmer.stem(word))
+            stemmed_query.append(tmp_part)
+        return stemmed_query
+
+    def __normalize_query(self, query_array):
+        """Normalize words using lower case and only alpha-numeric character"""
+        normalized_query = []
+        for part in query_array:
+            tmp_part = []
+            for word in part:
+                word = word.lower()
+                word = re.sub('[^a-zA-Z0-9]', '', word)
+                tmp_part.append(word)
+            normalized_query.append(tmp_part)
+        return normalized_query
 
     def __split_query(self, query, separator=" ",lparen="(",rparen=")"):
         """"""
@@ -44,5 +83,5 @@ class QueryManager:
                 m4 = m2[1]
                 result.append([m1.group(1), m3, m4])
             else:
-                result.append(query_part)
+                result.append([query_part])
         return result
