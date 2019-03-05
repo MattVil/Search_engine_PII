@@ -1,4 +1,5 @@
 import re
+import pickle
 from bs4 import BeautifulSoup
 from nltk.stem import PorterStemmer
 
@@ -12,7 +13,9 @@ class PositionalInvertedIndex:
         self.nbDocs = 0
 
     def __str__(self):
-        str = ""
+        str = "-"*80
+        str += "\nPositional Inverted Index\nNumber of document : {}\n".format(self.nbDocs)
+        str += "-"*80 + "\n"
         for term in self.terms:
             str += term.__str__() + "\n"
         return str
@@ -146,11 +149,12 @@ class PositionalInvertedIndex:
         # print("not in term")
         return None
 
-    def loadDictionary(self, path2dic):
-        pass
-
-    def saveDictionary(self, path2dic):
-        pass
+    def save(self, filePath):
+        with open(filePath, "wb") as f:
+            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+        fileName = filePath.replace(".pickle", ".txt")
+        with open(fileName, "w") as f2:
+            f2.write(self.__str__())
 
     def getNbTerms(this):
         return len(this.terms)
@@ -174,14 +178,6 @@ class Term:
             str += occ.__str__() + ", "
         str += ")"
         return str
-
-    def __eq__(self, other):
-        """To compare 2 Occurence object by their docID attribute"""
-        return isinstance(other, Term) and self.word == other.word
-
-    def __hash__(self):
-        """Needed for __eq__()"""
-        return hash(self.word)
 
     def add(self, docID, position):
         """"""
@@ -219,14 +215,6 @@ class Occurence:
             str += " {},".format(pos)
         str += "]"
         return str
-
-    def __eq__(self, other):
-        """To compare 2 Occurence object by their docID attribute"""
-        return isinstance(other, Occurence) and self.docID == other.docID
-
-    def __hash__(self):
-        """Needed for __eq__()"""
-        return hash(self.docID)
 
     def add(self, position):
         """"""

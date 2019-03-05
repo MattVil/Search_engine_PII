@@ -13,16 +13,17 @@ class QueryManager:
         splited_query = self.__normalize_query(splited_query)
         splited_query = self.__stem_query(splited_query)
 
+        print(splited_query)
         posting_lists = []
         for part in splited_query:
-            if(len(part) > 1):
+            if(len(part) > 1): #if distance information
                 posting_lists.append(self.dictionary.getPostingListDistance(part[1], part[2], int(part[0])))
                 print("\t{}({} {}) - \t Posting list: {}".format(
                         part[0],
                         part[1],
                         part[2],
                         self.dictionary.getPostingListDistance(part[1], part[2], int(part[0]))))
-            else:
+            else: #if single word
                 posting_lists.append(self.dictionary.getPostingList(part[0]))
                 print("\t{} - \t\t Posting list: {}".format(part[0], self.dictionary.getPostingList(part[0])))
 
