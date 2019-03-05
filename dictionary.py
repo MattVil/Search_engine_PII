@@ -9,6 +9,7 @@ class PositionalInvertedIndex:
         self.path2docs = path2docs
         self.stopWords = []
         self.terms = []
+        self.nbDocs = 0
 
     def __str__(self):
         str = ""
@@ -20,6 +21,8 @@ class PositionalInvertedIndex:
         """"""
         docs = self.__loadDocuments()
         # docs = [["la","vie","est", "belles", "vraiment", "belle"], ["c'est","avant", "tout", "des", "rencontres"], ["les", "rencontres", "qui", "forme", "la", "vie"]]
+
+        self.nbDocs = len(docs)
 
         normalizedDocs = []
         for doc in docs:
@@ -156,39 +159,6 @@ class PositionalInvertedIndex:
         self.stopWords = stopWords
 
 
-class Occurence:
-    """"""
-
-    def __init__(self, docID):
-        self.docID = docID
-        self.termFreq = 0
-        self.positions = []
-
-    def __str__(self):
-        str = "[{}, {} : ".format(self.docID, self.termFreq)
-        for pos in self.positions:
-            str += " {},".format(pos)
-        str += "]"
-        return str
-
-    def __eq__(self, other):
-        """To compare 2 Occurence object by their docID attribute"""
-        return isinstance(other, Occurence) and self.docID == other.docID
-
-    def __hash__(self):
-        """Needed for __eq__()"""
-        return hash(self.docID)
-
-    def add(self, position):
-        """"""
-        if(position not in self.positions):
-            self.positions.append(position)
-            self.positions.sort()
-            self.termFreq += 1
-
-    def methodeToConvertToSaveableFormat(self):
-        pass
-
 
 class Term:
     """"""
@@ -232,3 +202,38 @@ class Term:
             if(occ.docID == docID):
                 return occ
         return None
+
+
+
+class Occurence:
+    """"""
+
+    def __init__(self, docID):
+        self.docID = docID
+        self.termFreq = 0
+        self.positions = []
+
+    def __str__(self):
+        str = "[{}, {} : ".format(self.docID, self.termFreq)
+        for pos in self.positions:
+            str += " {},".format(pos)
+        str += "]"
+        return str
+
+    def __eq__(self, other):
+        """To compare 2 Occurence object by their docID attribute"""
+        return isinstance(other, Occurence) and self.docID == other.docID
+
+    def __hash__(self):
+        """Needed for __eq__()"""
+        return hash(self.docID)
+
+    def add(self, position):
+        """"""
+        if(position not in self.positions):
+            self.positions.append(position)
+            self.positions.sort()
+            self.termFreq += 1
+
+    def methodeToConvertToSaveableFormat(self):
+        pass

@@ -1,4 +1,5 @@
 import re
+import math
 from nltk.stem import PorterStemmer
 
 class QueryManager:
@@ -25,8 +26,64 @@ class QueryManager:
                 posting_lists.append(self.dictionary.getPostingList(part[0]))
                 print("\t{} - \t\t Posting list: {}".format(part[0], self.dictionary.getPostingList(part[0])))
 
+        selected_docID = self.__merge_posting(posting_lists, "AND")
+        # selected_docID = self.__merge_posting(posting_lists, "OR")
 
-        return splited_query
+        query_terms = self.__get_query_terms(splited_query)
+
+        scores = {}
+        for docID in selected_docID:
+            scores[docID] = self.__compute_score(docID, query_terms)
+
+        return scores
+
+    def __compute_score(self, docID, terms):
+        """"""
+        score = 0
+        for word in terms:
+            term = self.dictionary.getTerm(word)
+            occurence = term.getOccurence(docID)
+            tf = occurence.termFreq
+            df = term.docFreq
+            N = self.dictionary.nbDocs
+            score += (1 + math.log10(tf)) * math.log10(N/df)
+
+        return score
+
+    def __merge_posting(self, lists, oper="AND"):
+        """"""
+        final_list = []
+        if(oper == "OR"):
+            for posting in lists:
+                final_list = list(set(posting + final_list))
+        elif(oper == "AND"):
+            for idx, posting in enumerate(lists):
+                if(idx == 0):
+                    final_list = posting
+                else:
+                    final_tmp = []
+                    for docID in final_list:
+                        if(docID in posting):
+                            final_tmp.append(docID)
+                    final_list = final_tmp
+        else:
+            print("Error operation to merge posting lists not recognized.")
+            return None
+
+        return final_list
+
+    def __get_query_terms(self, spltied_query):
+        """"""
+        terms = []
+        for part in spltied_query:
+            if(len(part) > 1):
+                for i in range(1, 3):
+                    if(part[i] not in terms):
+                        terms.append(part[i])
+            else:
+                if(part[0] not in terms):
+                    terms.append(part[0])
+        return terms
 
     def __stem_query(self, query_array):
         """Do a morphologic tranformation on a query array"""
