@@ -22,7 +22,7 @@ def printResult(result):
     count = 1
     while(result):
         maxKey = max(result, key=result.get)
-        print("#{}\tdocID: {}\tscore: {}".format(count, maxKey, result[maxKey]))
+        print("#{}\tdocID: {}\ttf-idf score: {}".format(count, maxKey, result[maxKey]))
         del result[maxKey]
         count += 1
 

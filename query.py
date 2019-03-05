@@ -41,13 +41,16 @@ class QueryManager:
     def __compute_score(self, docID, terms):
         """"""
         score = 0
+        tf, df = 0, 0
         for word in terms:
             term = self.dictionary.getTerm(word)
-            occurence = term.getOccurence(docID)
-            tf = occurence.termFreq
-            df = term.docFreq
-            N = self.dictionary.nbDocs
-            score += (1 + math.log10(tf)) * math.log10(N/df)
+            if(term):
+                occurence = term.getOccurence(docID)
+                if(occurence):
+                    tf = occurence.termFreq
+                    df = term.docFreq
+                    N = self.dictionary.nbDocs
+                    score += (1 + math.log10(tf)) * math.log10(N/df)
 
         return score
 
