@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from nltk.stem import PorterStemmer
 
 class PositionalInvertedIndex:
-    """"""
+    """Dictionary containing the collection of Terms and their positional posting lists"""
 
     def __init__(self, path2docs):
         self.path2docs = path2docs
@@ -21,9 +21,8 @@ class PositionalInvertedIndex:
         return str
 
     def build(self):
-        """"""
+        """Build the dictionary from the documents"""
         docs = self.__loadDocuments()
-        # docs = [["la","vie","est", "belles", "vraiment", "belle"], ["c'est","avant", "tout", "des", "rencontres"], ["les", "rencontres", "qui", "forme", "la", "vie"]]
 
         self.nbDocs = len(docs)
 
@@ -38,7 +37,7 @@ class PositionalInvertedIndex:
         for docID, doc in enumerate(stemmedDocs):
             for pos, word in enumerate(doc):
                 if(word not in self.stopWords):
-                    self.addTerm(word, docID, pos)
+                    self.__addTerm(word, docID, pos)
 
 
         self.__updateDocumentFrequency()
@@ -46,8 +45,8 @@ class PositionalInvertedIndex:
         return stemmedDocs
 
 
-    def addTerm(self, word, docID, pos):
-        """"""
+    def __addTerm(self, word, docID, pos):
+        """Write a word, it docID and it position in the dictionary"""
         term = self.getTerm(word)
         if(term):
             term.add(docID, pos)
@@ -79,7 +78,7 @@ class PositionalInvertedIndex:
         return normalizedDoc
 
     def __updateDocumentFrequency(self):
-        """"""
+        """Count the number of document for each term"""
         for term in self.terms:
             term.docFreq = len(term.occurences)
 
@@ -95,14 +94,14 @@ class PositionalInvertedIndex:
         return docs
 
     def getPostingList(self, word):
-        """"""
+        """Return the positional posting list of a term, None if the term is not in the dictionary"""
         term = self.getTerm(word)
         if(term == None):
             return None
         return [occ.docID for occ in term.occurences]
 
     def getPostingListDistance(self, word1, word2, distance):
-        """"""
+        """Return the positional posting list of the intersection of 2 words with a positional constrain"""
         term1 = self.getTerm(word1)
         term2 = self.getTerm(word2)
 
@@ -142,6 +141,7 @@ class PositionalInvertedIndex:
 
 
     def getTerm(self, word):
+        """Return the Term object of a word"""
         for term in self.terms:
             if(term.word == word):
                 # print("{}/{}".format(term.word, word))
@@ -150,6 +150,7 @@ class PositionalInvertedIndex:
         return None
 
     def save(self, filePath):
+        """Save the PositionalInvertedIndex in a pickle file and write a readable txt file"""
         with open(filePath, "wb") as f:
             pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
         fileName = filePath.replace(".pickle", ".txt")
@@ -165,7 +166,7 @@ class PositionalInvertedIndex:
 
 
 class Term:
-    """"""
+    """Term in the dictionary, with its document frequency and the position in each document"""
 
     def __init__(self, word):
         self.word = word
@@ -180,7 +181,7 @@ class Term:
         return str
 
     def add(self, docID, position):
-        """"""
+        """add a occurence in a document given a position"""
         occurence = self.getOccurence(docID)
         if(occurence):
             # print("\treuse past occ")
@@ -192,7 +193,7 @@ class Term:
             self.occurences.append(newOccurence)
 
     def getOccurence(self, docID):
-        """"""
+        """return the occurences in a documents"""
         for occ in self.occurences:
             # print("---- {}/{}".format(occ.docID, docID))
             if(occ.docID == docID):
@@ -202,7 +203,7 @@ class Term:
 
 
 class Occurence:
-    """"""
+    """Positions of a term in a document and term frequency in this document"""
 
     def __init__(self, docID):
         self.docID = docID
@@ -217,11 +218,8 @@ class Occurence:
         return str
 
     def add(self, position):
-        """"""
+        """add a occurence of the term in a document"""
         if(position not in self.positions):
             self.positions.append(position)
             self.positions.sort()
             self.termFreq += 1
-
-    def methodeToConvertToSaveableFormat(self):
-        pass

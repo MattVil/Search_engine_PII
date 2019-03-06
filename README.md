@@ -11,21 +11,21 @@ Matthieu Vilain
 
 ```
 .
-├── data
+├── data                           //store the files containing the documents
 │   ├── documents.txt
 │   └── wiki.txt
 |
-├── dictionary
+├── dictionary                     //store the dictionary
 │   ├── dictionary.pickle
 │   └── dictionary.txt
 |
-├── doc
+├── doc                            //documentation
 │   └── HW2.pdf
 |   └── README.pdf
 |
-├── dictionary.py
-├── query.py
-├── search.py
+├── dictionary.py                  //Positional Inverted Index classes  
+├── query.py                       //Query Manager class
+├── search.py                      //Script to use the Positional Inverted Index
 └── README.md
 ```
 
@@ -48,6 +48,8 @@ You can also add arguments for additional functionality :
 ```
 python search.py "your 0(positional query)" -b -s -t
 ```
+
+If you save the Positional Inverted Index, it will create 2 files : one pickle file to save the object and a txt file which is a readable file containing the list of terms and their posting lists
 
 #### Positional Inverted Index creation
 

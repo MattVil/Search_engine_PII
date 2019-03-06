@@ -3,12 +3,13 @@ import math
 from nltk.stem import PorterStemmer
 
 class QueryManager:
+    """Manage all the operation on the user's query"""
 
     def __init__(self, dictionary):
         self.dictionary = dictionary
 
     def process(self, query):
-        """"""
+        """Preprocess, found posting lists, rank and return the result of a query"""
         splited_query = self.__split_query(query)
         splited_query = self.__normalize_query(splited_query)
         splited_query = self.__stem_query(splited_query)
@@ -39,7 +40,7 @@ class QueryManager:
         return scores
 
     def __compute_score(self, docID, terms):
-        """"""
+        """Compute the tf-idf score of query terms in a document"""
         score = 0
         tf, df = 0, 0
         for word in terms:
@@ -55,7 +56,7 @@ class QueryManager:
         return score
 
     def __merge_posting(self, lists, oper="AND"):
-        """"""
+        """Merge multiple posting lists given the merge operation"""
         final_list = []
         if(oper == "OR"):
             for posting in lists:
@@ -77,7 +78,7 @@ class QueryManager:
         return final_list
 
     def __get_query_terms(self, spltied_query):
-        """"""
+        """Return the terms of a splited query, remove the positional informations"""
         terms = []
         for part in spltied_query:
             if(len(part) > 1):
@@ -113,7 +114,7 @@ class QueryManager:
         return normalized_query
 
     def __split_query(self, query, separator=" ",lparen="(",rparen=")"):
-        """"""
+        """Split the query into sub-query easier to compute"""
         nb_brackets=0
         query = query.strip(separator)
 

@@ -9,13 +9,11 @@ PATH_TO_DICTIONARY = "./dictionary/dictionary.pickle"
 STOP_WORDS = ['', 'the', 'is', 'at', 'of', 'on', 'and', 'a']
 
 def loadDictionary(path2dic):
-    """"""
     with open(path2dic, "rb") as f:
         return pickle.load(f)
     return None
 
 def printResult(result):
-
     print("\n" + "#"*31)
     print("#" + " "*7 + "RESULTING DOCID"+ " "*7 + "#")
     print("#"*31 + "\n")
@@ -38,13 +36,13 @@ def main():
 
     startB = timeit.default_timer()
     if(args.build):
-        print("\nLoading dictionary ...", end=' ')
+        print("\nBuilding dictionary ...", end=' ')
         dictionary = PositionalInvertedIndex(PATH_TO_DOCUMENTS)
         dictionary.setStopWords(STOP_WORDS)
         docs = dictionary.build()
         print("Done.")
     else:
-        print("\nBuilding dictionary ...", end=' ')
+        print("\nLoading dictionary ...", end=' ')
         dictionary = loadDictionary(PATH_TO_DICTIONARY)
         print("Done.")
     stopB = timeit.default_timer()
@@ -53,28 +51,17 @@ def main():
         startS = timeit.default_timer()
         print("Saving ...", end=' ')
         dictionary.save(PATH_TO_DICTIONARY)
-        print("Done.\n")
+        print("Done.")
         stopS = timeit.default_timer()
 
-
+    print()
 
     queryManager = QueryManager(dictionary)
 
     start = timeit.default_timer()
     result = queryManager.process(args.query)
     stop = timeit.default_timer()
-    # print("\nnexus like love happy")
-    # print(queryManager.process("nexus like love happy"))
-    # print("\nasus repair")
-    # print(queryManager.process("asus repair"))
-    # print("\n0(touch screen) fix repair")
-    # print(queryManager.process("0(touch screen) fix repair"))
-    # print("\n1(great tablet) 2(tablet fast)")
-    # print(queryManager.process("1(great tablet) 2(tablet fast)"))
-    # print("\ntablet")
-    # print(queryManager.process("tablet"))
 
-    # print(type(result))
     printResult(result)
 
     if(args.time):
